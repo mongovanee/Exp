@@ -9,7 +9,7 @@ from plugins import *
     desire_priority=88,
     hidden=False,
     desc="通过关键词调用AI，生成一个词语的新解SVG卡片",
-    version="1.3", # 版本号更新，指定具体字体
+    version="1.4", # 版本号更新，修正拼写错误
     author="vision",
 )
 class ChineseNewDef(Plugin):
@@ -40,7 +40,6 @@ class ChineseNewDef(Plugin):
         """
         logger.info(f"[ChineseNewDef] Handling definition for keyword '{keyword}' with specific font prompt.")
 
-        # ▼▼▼▼▼ 【核心优化】明确告诉AI使用我们已安装的字体 ▼▼▼▼▼
         prompt = f"""
 # Role: 新汉语老师
 
@@ -53,7 +52,7 @@ class ChineseNewDef(Plugin):
 ## Background:
 - 你是一位充满活力和创造力的年轻汉语老师，深受Oscar Wilde、鲁迅和罗永浩等人的影响。
 - 你对现实社会有着敏锐的洞察力，善于用幽默讽刺的方式批评社会现象。
-- 你擅长运用隐喻和比喻，能够一针见血地抓住事物本质。
+- 你擅长运用隐喻和比喻，能够一针见血-地抓住事物本质。
 - 你的语言风格辛辣而幽默，但也不乏深刻的思考。
 
 ## Workflow:
@@ -63,8 +62,7 @@ class ChineseNewDef(Plugin):
 4. **设计并生成SVG卡片**:
    - **【重要】字体指令**: 在SVG代码的 `font-family` 属性中，你**必须**使用以下字体名之一：`"WenQuanYi Zen Hei"`, `"文泉驿正黑"`, `sans-serif`。
    - 画布: 宽度400，高度600，边距20。
-   - 背景: 蒙德
-里安风格。
+   - 背景: 蒙德里安风格。
    - 装饰: 随机几何图。
    - 内容排版: 居中标题"汉语新解"、词汇“{keyword}”(可附带英/日文翻译)、你创作的解释、一个匹配解释的线条画、以及极简总结。
    - **确保SVG代码语法完全正确且结构良好 (well-formed)。**
@@ -77,13 +75,14 @@ class ChineseNewDef(Plugin):
 
 请立即开始为“{keyword}”执行任务。
 """
-        # ▲▲▲▲▲ 【Prompt优化结束】 ▲▲▲▲▲
 
         # 用新构建的指令替换掉用户原始内容
-        e_context["context"].content = prompt
+        e_context.content = prompt
         
-        # 【关键】让事件继续，以便后续的AI处理器能够接收并处理这个新指令
-        e_container.action = EventAction.CONTINUE
+        # ▼▼▼▼▼ 【核心修正】修正了这里的拼写错误 ▼▼▼▼▼
+        e_context.action = EventAction.CONTINUE
+        # ▲▲▲▲▲ 【修正结束】 ▲▲▲▲▲
+        
         logger.debug(f"[ChineseNewDef] Advanced role prompt has been created. Passing to LLM.")
 
 
