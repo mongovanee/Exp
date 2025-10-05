@@ -9,7 +9,7 @@ from plugins import *
     desire_priority=88,
     hidden=False,
     desc="通过关键词调用AI，生成一个词语的新解SVG卡片",
-    version="2.1-LISP", # 终极版-LISP风格
+    version="2.2-tspan-fallback", # 终极版-tspan兼容方案
     author="vision",
 )
 class ChineseNewDef(Plugin):
@@ -30,9 +30,9 @@ class ChineseNewDef(Plugin):
                 return
 
     def handle_chinese_definition(self, keyword: str, e_context: EventContext):
-        logger.info(f"[ChineseNewDef] Handling definition for keyword '{keyword}' with LISP-style prompt.")
+        logger.info(f"[ChineseNewDef] Handling definition for keyword '{keyword}' with LISP-style and tspan prompt.")
 
-        # ▼▼▼▼▼ 【终极版提示词 - 融合LISP风格】 ▼▼▼▼▼
+        # ▼▼▼▼▼ 【终极版提示词 - 融合LISP风格 & tspan兼容方案】 ▼▼▼▼▼
         prompt = f"""
 # System Prompt: Your Persona and Task
 
@@ -87,8 +87,12 @@ You must adhere to these final technical rules, which override any conflicting i
 
 1.  **【MANDATORY FONT USAGE】**: In the final SVG code's `font-family` attribute, you **MUST** use one of the following font names: `"WenQuanYi Zen Hei"`, `"文泉驿正黑"`, `sans-serif`. The fonts '毛笔楷体' and '汇文明朝体' from the persona are for *creative inspiration only*, not for the final code. This is a critical technical requirement.
 
-2.  **【MANDATORY LAYOUT TECHNIQUE】**: For all multi-line text blocks (like the main definition and the summary), you **MUST** use the `<foreignObject>` tag to embed HTML `<div>` for automatic text wrapping. This is essential to prevent text overlap.
-    - **Example**: `<foreignObject x="40" y="250" width="320" height="150"><body xmlns="http://www.w3.org/1999/xhtml"><div style="font-family: 'WenQuanYi Zen Hei', sans-serif; font-size: 18px;">...your text...</div></body></foreignObject>`
+2.  **【MANDATORY LAYOUT TECHNIQUE - NO `<foreignObject>`】**: The `<foreignObject>` tag is not supported by the renderer. For all multi-line text blocks (like the main definition and the summary), you **MUST** use multiple `<tspan>` elements inside a single `<text>` element to manually create line breaks. This is the only reliable way to prevent text overlap.
+    - **Example**:
+      `<text x="40" y="250" style="font-family: 'WenQuanYi Zen Hei', sans-serif; font-size: 18px;">`
+        `<tspan x="40" dy="1.2em">这是第一行文字，在这里换行。</tspan>`
+        `<tspan x="40" dy="1.4em">这是第二行文字，有更大的行距。</tspan>`
+      `</text>`
 
 3.  **【FINAL OUTPUT FORMAT】**: Your response **MUST** contain only two parts:
     - **Part 1**: The one-sentence definition you created.
@@ -100,7 +104,7 @@ You must adhere to these final technical rules, which override any conflicting i
 
         e_context["context"].content = prompt
         e_context.action = EventAction.CONTINUE
-        logger.debug(f"[ChineseNewDef] Ultimate LISP-style prompt has been created. Passing to LLM.")
+        logger.debug(f"[ChineseNewDef] Ultimate LISP-style tspan prompt has been created. Passing to LLM.")
 
 
     def get_help_text(self, **kwargs):
