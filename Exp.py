@@ -9,7 +9,7 @@ from plugins import *
     desire_priority=88,
     hidden=False,
     desc="通过关键词调用AI，生成一个词语的新解SVG卡片",
-    version="1.4", # 版本号更新，修正拼写错误
+    version="1.5", # 版本号更新，最终修正版
     author="vision",
 )
 class ChineseNewDef(Plugin):
@@ -76,12 +76,11 @@ class ChineseNewDef(Plugin):
 请立即开始为“{keyword}”执行任务。
 """
 
-        # 用新构建的指令替换掉用户原始内容
-        e_context.content = prompt
-        
-        # ▼▼▼▼▼ 【核心修正】修正了这里的拼写错误 ▼▼▼▼▼
-        e_context.action = EventAction.CONTINUE
+        # ▼▼▼▼▼ 【核心修正】修正了这里的代码，确保正确修改上下文内容 ▼▼▼▼▼
+        e_context["context"].content = prompt
         # ▲▲▲▲▲ 【修正结束】 ▲▲▲▲▲
+        
+        e_context.action = EventAction.CONTINUE
         
         logger.debug(f"[ChineseNewDef] Advanced role prompt has been created. Passing to LLM.")
 
