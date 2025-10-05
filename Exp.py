@@ -9,7 +9,7 @@ from plugins import *
     desire_priority=88,
     hidden=False,
     desc="通过关键词调用AI，生成一个词语的新解SVG卡片",
-    version="2.2-tspan-fallback", # 终极版-tspan兼容方案
+    version="2.3-creative-color", # 终极版-创意色彩
     author="vision",
 )
 class ChineseNewDef(Plugin):
@@ -30,9 +30,9 @@ class ChineseNewDef(Plugin):
                 return
 
     def handle_chinese_definition(self, keyword: str, e_context: EventContext):
-        logger.info(f"[ChineseNewDef] Handling definition for keyword '{keyword}' with LISP-style and tspan prompt.")
+        logger.info(f"[ChineseNewDef] Handling definition for keyword '{keyword}' with LISP-style and Creative Color prompt.")
 
-        # ▼▼▼▼▼ 【终极版提示词 - 融合LISP风格 & tspan兼容方案】 ▼▼▼▼▼
+        # ▼▼▼▼▼ 【终极创意色彩版提示词】 ▼▼▼▼▼
         prompt = f"""
 # System Prompt: Your Persona and Task
 
@@ -65,46 +65,38 @@ Your primary directive is to act *exactly* as the persona defined in the LISP-st
 (setq design-rule "合理使用负空间，整体排版要有呼吸感"
 design-principles '(干净 简洁 典雅))
 
-(设置画布 '(宽度 400 高度 600 边距 20))
-(标题字体 '毛笔楷体)
-(自动缩放 '(最小字号 16))
-
-(配色风格 '((背景色 (蒙德里安风格 设计感)))
-(主要文字 (汇文明朝体 粉笔灰))
-(装饰图案 随机几何图))
-
-(卡片元素 ((居中标题 "汉语新解")
-分隔线
-(排版输出 用户输入 英文 日语)
-解释
-(线条图 (批判内核 解释))
-(极简总结 线条图))))
+(设置画布 '(宽度 400 高度 600 边距 20)))
 
 ---
-# Technical Overrides & Final Output Instructions (VERY IMPORTANT)
+# Creative & Technical Instructions (VERY IMPORTANT)
 
-You must adhere to these final technical rules, which override any conflicting information from the LISP persona above.
+You must adhere to these final creative and technical rules, which override any conflicting information from the LISP persona above.
 
-1.  **【MANDATORY FONT USAGE】**: In the final SVG code's `font-family` attribute, you **MUST** use one of the following font names: `"WenQuanYi Zen Hei"`, `"文泉驿正黑"`, `sans-serif`. The fonts '毛笔楷体' and '汇文明朝体' from the persona are for *creative inspiration only*, not for the final code. This is a critical technical requirement.
+1.  **【CREATIVE COLOR & STYLE】**:
+    - **DO NOT** use a plain white background.
+    - You **MUST** choose a background color, multiple colors, or a gradient that **matches the emotion and meaning** of your new definition for "{keyword}".
+    - You have complete creative freedom with the design style (minimalism, abstract, geometric, etc.), as long as it is clean, elegant, and serves the definition.
 
-2.  **【MANDATORY LAYOUT TECHNIQUE - NO `<foreignObject>`】**: The `<foreignObject>` tag is not supported by the renderer. For all multi-line text blocks (like the main definition and the summary), you **MUST** use multiple `<tspan>` elements inside a single `<text>` element to manually create line breaks. This is the only reliable way to prevent text overlap.
+2.  **【MANDATORY FONT USAGE】**: In the final SVG code's `font-family` attribute, you **MUST** use one of the following font names: `"WenQuanYi Zen Hei"`, `"文泉驿正黑"`, `sans-serif`. This is a critical technical requirement.
+
+3.  **【MANDATORY LAYOUT TECHNIQUE】**: For all multi-line text blocks, you **MUST** use multiple `<tspan>` elements inside a single `<text>` element to manually create line breaks. This is the only reliable way to prevent text overlap.
     - **Example**:
       `<text x="40" y="250" style="font-family: 'WenQuanYi Zen Hei', sans-serif; font-size: 18px;">`
         `<tspan x="40" dy="1.2em">这是第一行文字，在这里换行。</tspan>`
-        `<tspan x="40" dy="1.4em">这是第二行文字，有更大的行距。</tspan>`
+        `<tspan x="40" dy="1.4em">这是第二行文字。</tspan>`
       `</text>`
 
-3.  **【FINAL OUTPUT FORMAT】**: Your response **MUST** contain only two parts:
+4.  **【FINAL OUTPUT FORMAT】**: Your response **MUST** contain only two parts:
     - **Part 1**: The one-sentence definition you created.
     - **Part 2**: Immediately on the next line, the complete, valid, and well-formed SVG code block.
 
-**Your Task**: Now, using the "新汉语老师" persona but adhering to the mandatory technical overrides, execute your workflow for the word: **"{keyword}"**. Begin.
+**Your Task**: Now, using the "新汉语老师" persona and adhering to all instructions, execute your workflow for the word: **"{keyword}"**. Begin.
 """
         # ▲▲▲▲▲ 【Prompt结束】 ▲▲▲▲▲
 
         e_context["context"].content = prompt
         e_context.action = EventAction.CONTINUE
-        logger.debug(f"[ChineseNewDef] Ultimate LISP-style tspan prompt has been created. Passing to LLM.")
+        logger.debug(f"[ChineseNewDef] Ultimate Creative Color prompt has been created. Passing to LLM.")
 
 
     def get_help_text(self, **kwargs):
